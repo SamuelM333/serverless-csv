@@ -1,7 +1,10 @@
 import csv
+from uuid import uuid4
 
 import boto3
 from chalice import Chalice
+
+from chalicelib.db import Csv
 
 s3 = boto3.client('s3', region_name='us-east-1')
 
@@ -15,6 +18,12 @@ def handle_s3_event(event):
     file = s3.get_object(Bucket=event.bucket, Key=event.key)
 
     lines = file['Body'].read().decode("utf-8").splitlines(True)
-    reader = csv.reader(lines)
+    reader = list(csv.reader(lines))
+    headers = reader.pop()
+    headers = list(map(lambda header: header.lower().replace(" ", "_"), headers))
+
     for row in reader:
         print(row)
+        data = dict(zip(headers, row))
+        item = Csv(_id=str(uuid4()), **data)
+        item.save()
