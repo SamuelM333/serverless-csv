@@ -19,11 +19,10 @@ def handle_s3_event(event):
 
     lines = file['Body'].read().decode("utf-8").splitlines(True)
     reader = list(csv.reader(lines))
-    headers = reader.pop()
-    headers = list(map(lambda header: header.lower().replace(" ", "_"), headers))
+
+    headers = list(map(lambda header: header.lower().replace(" ", "_"), reader.pop(0)))
 
     for row in reader:
-        print(row)
         data = dict(zip(headers, row))
         item = Csv(_id=str(uuid4()), **data)
         item.save()
