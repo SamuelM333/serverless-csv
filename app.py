@@ -1,3 +1,5 @@
+import csv
+
 import boto3
 from chalice import Chalice
 
@@ -9,7 +11,9 @@ app.debug = True
 @app.on_s3_event(bucket='samuelm333-csv', events=['s3:ObjectCreated:*'])
 def handle_s3_event(event):
     app.log.debug("Received event for bucket: %s, key: %s", event.bucket, event.key)
+
     file = s3.get_object(Bucket=event.bucket, Key=event.key)
 
-    data = file['Body'].read().decode('utf-8')
-    print(data)
+    lines = file['Body'].read().decode("utf-8").splitlines(True)
+    reader = csv.reader(lines)
+    print(reader[0])
