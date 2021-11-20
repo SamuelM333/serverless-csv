@@ -16,4 +16,5 @@ def handle_s3_event(event):
 
     lines = file['Body'].read().decode("utf-8").splitlines(True)
     reader = csv.reader(lines)
-    print(reader[0])
+    for row in reader:
+        print(row)
