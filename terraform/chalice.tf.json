@@ -1,0 +1,88 @@
+{
+  "resource": {
+    "aws_iam_role": {
+      "handle_s3_event_role": {
+        "name": "serverless-csv-dev-handle_s3_event",
+        "assume_role_policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Sid\": \"\", \"Effect\": \"Allow\", \"Principal\": {\"Service\": \"lambda.amazonaws.com\"}, \"Action\": \"sts:AssumeRole\"}]}"
+      }
+    },
+    "aws_iam_role_policy": {
+      "handle_s3_event_role": {
+        "name": "handle_s3_event_rolePolicy",
+        "policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": \"s3:GetObject\", \"Resource\": \"*\"}, {\"Effect\": \"Allow\", \"Action\": [\"logs:CreateLogGroup\", \"logs:CreateLogStream\", \"logs:PutLogEvents\"], \"Resource\": \"arn:*:logs:*:*:*\"}, {\"Effect\": \"Allow\", \"Action\": \"dynamodb:*\", \"Resource\": \"arn:aws:dynamodb:us-east-1:068647027378:table/csv\"}]}",
+        "role": "${aws_iam_role.handle_s3_event_role.id}"
+      }
+    },
+    "aws_lambda_function": {
+      "handle_s3_event": {
+        "function_name": "serverless-csv-dev-handle_s3_event",
+        "runtime": "python3.8",
+        "handler": "app.handle_s3_event",
+        "memory_size": 128,
+        "tags": {
+          "aws-chalice": "version=1.26.2:stage=dev:app=serverless-csv"
+        },
+        "timeout": 60,
+        "source_code_hash": "${filebase64sha256(\"${path.module}/deployment.zip\")}",
+        "filename": "${path.module}/deployment.zip",
+        "role": "${aws_iam_role.handle_s3_event_role.arn}"
+      }
+    },
+    "aws_s3_bucket_notification": {
+      "samuelm333-csv_notify": {
+        "bucket": "samuelm333-csv",
+        "lambda_function": [
+          {
+            "events": [
+              "s3:ObjectCreated:*"
+            ],
+            "lambda_function_arn": "${aws_lambda_function.handle_s3_event.arn}"
+          }
+        ]
+      }
+    },
+    "aws_lambda_permission": {
+      "handle_s3_event-s3event": {
+        "statement_id": "handle_s3_event-s3event",
+        "action": "lambda:InvokeFunction",
+        "function_name": "${aws_lambda_function.handle_s3_event.arn}",
+        "principal": "s3.amazonaws.com",
+        "source_account": "${data.aws_caller_identity.chalice.account_id}",
+        "source_arn": "arn:${data.aws_partition.chalice.partition}:s3:::samuelm333-csv"
+      }
+    }
+  },
+  "terraform": {
+    "required_version": "> 0.11.0, < 1.1.0"
+  },
+  "provider": {
+    "template": {
+      "version": "~> 2"
+    },
+    "aws": {
+      "version": ">= 2, < 4"
+    },
+    "null": {
+      "version": ">= 2, < 4"
+    }
+  },
+  "data": {
+    "aws_caller_identity": {
+      "chalice": {}
+    },
+    "aws_partition": {
+      "chalice": {}
+    },
+    "aws_region": {
+      "chalice": {}
+    },
+    "null_data_source": {
+      "chalice": {
+        "inputs": {
+          "app": "serverless-csv",
+          "stage": "dev"
+        }
+      }
+    }
+  }
+}
