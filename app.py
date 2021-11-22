@@ -18,7 +18,7 @@ def handle_s3_event(event):
 
     file = s3.get_object(Bucket=event.bucket, Key=event.key)
 
-    try
+    try:
         lines = file['Body'].read().decode("utf-8").splitlines(True)
     except UnicodeDecodeError:
         app.log.error("Error decoding file")
