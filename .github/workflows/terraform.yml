@@ -17,8 +17,11 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          # terraform_version: 0.13.0:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Install Python requirements
+        id: pip
+        run: pip install -r requirements.txt
 
       - name: Terraform Format
         id: fmt
@@ -27,7 +30,11 @@ jobs:
       - name: Terraform Init
         id: init
         run: terraform -chdir=terraform init
-      
+
+      - name: Chalice package
+        id: package
+        run: chalice package --pkg-format terraform terraform
+
       - name: Terraform Validate
         id: validate
         run: terraform -chdir=terraform validate -no-color
