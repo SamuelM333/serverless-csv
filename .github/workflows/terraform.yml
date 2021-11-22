@@ -35,7 +35,9 @@ jobs:
         id: package
         env:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-        run: chalice package --pkg-format terraform terraform
+        run: |
+          chalice package --pkg-format terraform terraform
+          cat <<< $(jq 'del(.provider.aws)' chalice.tf.json) > chalice.tf.json
 
       - name: Terraform Validate
         id: validate
