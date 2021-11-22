@@ -18,7 +18,7 @@
         {
             "Effect": "Allow",
             "Action": "dynamodb:*",
-            "Resource": "arn:aws:dynamodb:us-east-1:068647027378:table/csv"
+            "Resource": "arn:aws:dynamodb:us-east-1:966159527932:table/csv"
         }
     ]
 }
