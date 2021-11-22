@@ -33,7 +33,7 @@ jobs:
 
       - name: Chalice package
         id: package
-        run: chalice package --pkg-format terraform terraform
+        run: echo $AWS_DEFAULT_REGION && chalice package --pkg-format terraform terraform
 
       - name: Terraform Validate
         id: validate
