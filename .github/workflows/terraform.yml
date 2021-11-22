@@ -8,7 +8,7 @@ on:
 
 jobs:
   terraform-plan:
-    name: "Terraform"
+    name: "Terraform plan"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,6 +43,8 @@ jobs:
 
       - name: Terraform Plan
         id: plan
+        env:
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
         #if: github.event_name == 'pull_request'
         run: terraform -chdir=terraform plan -no-color
         continue-on-error: true
@@ -87,5 +89,7 @@ jobs:
     needs: terraform-plan
     steps:
       - name: Terraform Apply
+        env:
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: terraform -chdir=terraform apply -auto-approve
